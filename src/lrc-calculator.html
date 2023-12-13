@@ -7,11 +7,15 @@
         <script src="lrc-calculator.js" type="text/javascript"></script>
         <script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
     </head>
-<body>
-    <div class="grid 2xl:grid-cols-2 p-10">
-        <div class="p-4">
-            <h1 class="text-2xl font-bold m-2">LRC Jobscript Tool</h1>
-            <form id="form" onSubmit="return (lrc_calc_run() && false)">
+<body onload="lrc_calc_onload()">
+
+    <!-- <h1 class="p-8 text-3xl sticky top-0 font-bold max-w bg-gray-600">LRC Job Configuration Assisstant</h1> -->
+
+    <div class="grid xl:grid-cols-2 p-0">
+        <div class="p-0 xl:overflow-scroll xl:overscroll-contain xl:h-screen">
+            <h1 class="text-2xl p-4 z-50 font-bold xl:sticky xl:top-0 m-0 bg-gray-600">LRC Job Parameters</h1>
+            <!-- <form id="form" onSubmit="return (lrc_calc_run() && false)"> -->
+            <form method="get" action="" id="form">
 
                 <!-- account information -->
                 <div class="m-2 p-2 border-2 bg-gray-800">
@@ -20,21 +24,33 @@
                         <div class="label">
                           <span class="label-text">Project Account Name (e.g. ac_scsguest)</span>
                         </div>
-                        <input value="" name="account" type="text" placeholder="" class="input input-bordered w-full max-w-xs" onchange="lrc_calc_onchange()"/>
+                        <input id="account" value="" name="account" type="text" placeholder="" class="input input-bordered w-full max-w-xs" onchange="lrc_calc_onchange()"/>
                     </label>
 
-                    <label class="form-control w-full m-2" id="condo_block">
+                    <label class="form-control w-max m-2" id="qos_block">
                         <div class="label">
-                        <span class="label-text">Condo Account Name (if applicable, e.g. axl, esd, nanotheory, ...)</span>
+                        <span class="label-text">Job Service Level (Quality of Service)</span>
                         </div>
-                        <input name="condo" type="text" placeholder="" oninput="lrc_calc_onchange()" class="input input-bordered w-full max-w-xs" />
+                        <select id="qos" name="qos" class="select select-bordered" oninput="lrc_calc_onchange()">
+                        <option selected="selected" value="normal">Normal (72 hour Time Limit)</option>
+                        <option value="debug">Debug (1 hour Time Limit)</option>
+                        <option value="lowprio">Low Priority (Preemptable, Free to Use)</option>
+                        <option value="other">Other (Specify QOS Name Below)</option>
+                        </select>
+                    </label>
+                    
+                        <label class="form-control w-full m-2" id="condo_block">
+                        <div class="label">
+                        <span class="label-text">Other QOS Name (e.g. condo_xyz, xyz_highprio, ...)</span>
+                        </div>
+                        <input id="qos_other" name="qos_other" type="text" placeholder="" oninput="lrc_calc_onchange()" class="input input-bordered w-full max-w-xs" />
                     </label>
 
                     <label class="form-control w-full m-2">
                         <div class="label">
                           <span class="label-text">Notification E-mail Address</span>
                         </div>
-                        <input name="email" type="text" oninput="lrc_calc_onchange()" placeholder="" class="input input-bordered w-full max-w-xs" />
+                        <input id="email" name="email" type="text" oninput="lrc_calc_onchange()" placeholder="" class="input input-bordered w-full max-w-xs" />
                     </label>
     
                 </div>
@@ -62,7 +78,7 @@
                           </thead>
                           <tbody>
                             <tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_v1" value="lr3_16" checked="checked" oninput="lrc_calc_onchange()" /></td>
+                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_16" value="lr3_16" checked="checked" oninput="lrc_calc_onchange()" /></td>
                                 <td>LR3:16</td>
                                 <td>Xeon E5-2670v1</td>
                                 <td>16</td>
@@ -70,7 +86,7 @@
                                 <td>Free</td>
                             </tr>
                             <tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_v2" value="lr3_20" oninput="lrc_calc_onchange()" /></td>
+                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_20" value="lr3_20" oninput="lrc_calc_onchange()" /></td>
                                 <td>LR3:20</td>
                                 <td>Xeon E5-2670v2</td>
                                 <td>20</td>
@@ -138,14 +154,14 @@
                                 <td>LR_BIGMEM</td>
                                 <td>Xeon Gold</td>
                                 <td>32</td>
-                                <td>1548GB</td>
+                                <td>1.5TB</td>
                                 <td>48 SU/node</td>
                             </tr>
 
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="es1_2080ti" value="es1_2080ti" oninput="lrc_calc_onchange()" /></td>
                                 <td>ES1:2080TI</td>
-                                <td>Xeon Silver + 4x 2080TI 11GB</td>
+                                <td>Xeon Silver + 4x 2080TI</td>
                                 <td>8</td>
                                 <td>96GB</td>
                                 <td>2 SU/GPU</td>
@@ -154,7 +170,7 @@
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="es1_v100" value="es1_v100" oninput="lrc_calc_onchange()" /></td>
                                 <td>ES1:V100</td>
-                                <td>Xeon E5-2623 + 2x V100 16GB</td>
+                                <td>Xeon E5-2623 + 2x V100</td>
                                 <td>8</td>
                                 <td>64GB</td>
                                 <td>4 SU/GPU</td>
@@ -163,7 +179,7 @@
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="es1_a40" value="es1_a40" oninput="lrc_calc_onchange()" /></td>
                                 <td>ES1:A40</td>
-                                <td>AMD EPYC + 4x A40 48GB</td>
+                                <td>AMD EPYC + 4x A40</td>
                                 <td>64</td>
                                 <td>512GB</td>
                                 <td>16 SU/GPU</td>
@@ -201,19 +217,19 @@
                       <span class="label-text">Require Contiguous Node Block</span>
                     </div>
                     <input name="contiguous" id="contiguous" type="checkbox" class="toggle" oninput="lrc_calc_onchange()" />
-                </label>               
+                </label>
                 
                 </div><!-- end machine information -->
 
                 <!-- thread binding -->
                 <div class="m-2 p-2 border-2 bg-gray-800">
-                    <h1 class="text-lg font-bold m-0">Thread Binding Parameters (Advanced)</h1>
+                    <h1 class="text-lg font-bold m-0">Task and Thread Parameters</h1>
                     <label class="form-control w-max m-2">
                         <div class="label">
                           <span class="label-text">Thread Layout</span>
                         </div>
                         <select id="binding" name="binding" class="select select-bordered" oninput="lrc_calc_onchange()">
-                          <option disabled selected>Select...</option>
+                          <option value="" selected>Select...</option>
                           <option value="spread">Spread (Optimal for Memory Bandwidth)</option>
                           <option value="close">Close (Optimal for Cache Locality)</option>
                         </select>
@@ -221,7 +237,7 @@
     
                     <label class="form-control w-max m-2">
                         <div class="label">
-                          <span class="label-text">Processes per Node</span>
+                          <span class="label-text">Tasks per Node</span>
                         </div>
                         <input id="n_tasks" name="n_tasks" type="number" min="1" max="64" oninput="lrc_calc_onchange()" class="input input-bordered w-full max-w-xs" />
                     </label>
@@ -243,21 +259,9 @@
                     <div class="label">
                       <span class="label-text">Job Name (e.g. mytask1)</span>
                     </div>
-                    <input name="jobname" type="text" oninput="lrc_calc_onchange()" placeholder="" class="input input-bordered w-full max-w-xs" />
+                    <input id="jobname" name="jobname" type="text" oninput="lrc_calc_onchange()" placeholder="" class="input input-bordered w-full max-w-xs" />
                 </label>
                   
-                <label class="form-control w-max m-2" id="qos_block">
-                    <div class="label">
-                    <span class="label-text">Job Service Level (Quality of Service)</span>
-                    </div>
-                    <select id="qos" name="qos" class="select select-bordered" oninput="lrc_calc_onchange()">
-                    <option selected="selected" value="normal">Normal (Subject to Recharges after PCA Limit Reached)</option>
-                    <option value="debug">Debug (1 hour Time Limit)</option>
-                    <option value="lowprio">Low Priority (Free, but is Preemptable)</option>
-                    <option value="condo">Condo Account (Not Subject to Recharges)</option>
-                    </select>
-                </label>
-                
                 <h1 class="text-sm pt-4 m-2">Job Runtime (Wallclock Time Limit)</h1>
 
                 <div class="px-2">
@@ -266,7 +270,7 @@
                         <span class="label-text">Hours</span>
                         </div>
 
-                        <input type="range" name="hours" min="0" max="72" value="0" class="range pr-4" id="hours" oninput="lrc_calc_onchange()" />
+                        <input id="hours" type="range" name="hours" min="0" max="72" value="0" class="range pr-4" id="hours" oninput="lrc_calc_onchange()" />
                         <div class="w-md p-2 flex justify-between text-xs px-2 pr-4">
                             <span>0</span>
                             <span>12</span>
@@ -283,7 +287,7 @@
                         <span class="label-text">Minutes</span>
                         </div>
 
-                        <input type="range" name="minutes" min="0" max="60" value="30" class="range pr-4" id="minutes" oninput="lrc_calc_onchange()" />
+                        <input id="minutes" type="range" name="minutes" min="0" max="60" value="30" class="range pr-4" id="minutes" oninput="lrc_calc_onchange()" />
                         <div class="w-md p-2 flex justify-between text-xs px-2 pr-4">
                             <span>0</span>
                             <span>10</span>
@@ -300,7 +304,7 @@
                         <span class="label-text">Seconds</span>
                         </div>
 
-                        <input type="range" name="seconds" min="0" max="59" value="0" class="range pr-4" id="seconds" oninput="lrc_calc_onchange()" />
+                        <input id="seconds" type="range" name="seconds" min="0" max="59" value="0" class="range pr-4" id="seconds" oninput="lrc_calc_onchange()" />
                         <div class="w-md p-2 flex justify-between text-xs px-2 pr-4">
                             <span>0</span>
                             <span>10</span>
@@ -315,30 +319,25 @@
                     
                 <label class="form-control w-full m-2">
                     <div class="label">
-                      <span class="label-text">Module Dependencies</span>
+                      <span class="label-text">Command(s) to Run</span>
                     </div>
                     <div class="pr-4">
-                    <textarea name="modules" oninput="lrc_calc_onchange()" class="textarea textarea-bordered w-full" placeholder=""></textarea>
+                    <textarea id="commands" name="commands" oninput="lrc_calc_onchange()" rows="10" cols="80" class="textarea textarea-bordered w-full" placeholder=""></textarea>
                     </div>
                 </label>
                   
-                <label class="form-control w-full m-2">
-                    <div class="label">
-                      <span class="label-text">Command to Run (e.g. /path/to/myapp arg1 arg2 arg3)</span>
-                    </div>
-                    <input name="command" type="text" placeholder="" oninput="lrc_calc_onchange()" class="input input-bordered w-full max-w-xs" />
-                </label>
-
-                <label class="form-control w-max m-2">
-                    <div class="label">
-                      <span class="label-text">Verbose Output</span>
-                    </div>
-                    <input name="verbose" id="verbose" type="checkbox" class="toggle" oninput="lrc_calc_onchange()" />
-                </label>
+                <div class="px-2">
+                    <label class="form-control w-max m-2">
+                        <div class="label">
+                        <span class="label-text">Verbose Output</span>
+                        </div>
+                        <input name="verbose" id="verbose" type="checkbox" class="toggle" checked="checked" oninput="lrc_calc_onchange()" />
+                    </label>               
+                </div>
                 
                 <h1 class="text-sm pt-4 m-2">Batch Options</h1>
                 <div class="px-2">
-                    <label class="form-control w-max m-2" id="requeue">
+                    <label class="form-control w-max m-2">
                         <div class="label">
                         <span class="label-text">Re-Queue Job if Preempted (for Low Priority QOS only)</span>
                         </div>
@@ -373,43 +372,50 @@
                 </div><!-- end job information -->
 
                 <div class="p-2">
-                <input class="btn btn-primary p-2 w-full" name="submit" type="submit" value="Submit" id="submit" onclick="lrc_calc_onchange(); lrc_calc_run(); return false" />
+                <input class="btn btn-primary p-2 w-full" name="submit" type="submit" value="Submit" id="submit" onclick="lrc_calc_onchange(); lrc_calc_run(); return true" />
                 </div>
 
             </form>
         </div>
-        <div class="p-4">
-            <h1 class="text-2xl font-bold m-2">LRC Jobscript Result</h1>
+        <div class="p-0 xl:h-screen xl:overflow-scroll xl:overscroll-none">
+            <h1 class="text-2xl p-4 font-bold m-0 bg-blue-600 xl:sticky xl:top-0 xl:z-50">LRC Job Script Result</h1>
 
-            <div class="m-2 p-2 border-2 bg-gray-600">
+            <div class="m-2 p-2 border-2">
                 <h1 class="text-lg font-bold m-0">LRC Service Cost</h1>
                 <div class="p-2">
                     <div class="stats shadow w-full">
-                        <div class="stat w-full">
+                        <div class="stat w-full  bg-blue-800">
                             <div class="stat-title">Estimated Total Service Units</div>
                             <div class="stat-value" id="su_cost">TBD</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-2" id="form_error" style="display:none">
+                <div class="p-2 hidden" id="form_error">
                     <div role="alert" class="alert alert-error">
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span>Input Error: Please Review Form Inputs.</span>
                     </div>                    
                 </div>
     
-                <div class="p-2" id="free_notice" style="display:none">
+                <div class="p-2" id="pca_notice">
                     <div role="alert" class="alert alert-info">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Each LRC Account Receives 500,000 SU Free per Fiscal Year</span>
+                        <span>PCA Accounts (pc_...) receive 500,000 free SU per Fiscal Year</span>
                     </div>
                 </div>
 
-                <div class="p-2" id="disclaimer" style="display:none">
+                <div class="p-2" id="recharge_notice">
+                    <div role="alert" class="alert alert-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Recharge Accounts (ac_...) are billed at $0.01/SU (code LRCCPU)</span>
+                    </div>
+                </div>
+
+                <div class="p-2 " id="disclaimer">
                     <div role="alert" class="alert alert-warning">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Exact SU Cost Depends on Number of Cores and Actual Job Runtime</span>
+                        <span>Exact SU Cost Depends on Allocated Cores and Job Runtime</span>
                     </div>
                 </div>
 
@@ -428,7 +434,7 @@
                     <pre data-prefix="$"><code></code></pre> 
                 </div>
             </div>
-            
+        
         </div>     
     </div>
 

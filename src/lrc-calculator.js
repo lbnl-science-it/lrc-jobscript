@@ -1,9 +1,68 @@
 
-function lrc_set_partition(id) {
+const radios = [
+    'partition'
+];
 
-    var selected = document.querySelector('input[name="partition"]:checked');
+const checkboxes = [
+    'contiguous',
+    'verbose',
+    'killbad',
+    'label',
+    'quit',
+    'requeue'
+];
 
-    document.getElementById(id).checked=true; 
+var slurm_script;
+
+var srun_command;
+
+function lrc_calc_onload() {
+
+    const form = document.getElementById("form");
+    const submitter = document.getElementById("submit");
+    const formData = new FormData(form, submitter);
+
+    const searchParams = new URLSearchParams(window.location.search);
+
+    for ( [key, value] of formData.entries() ) {
+
+        if((! (localStorage.getItem(key) === null)) || (searchParams.has(key))) {
+
+            if(radios.includes(key)) {
+                if(localStorage.getItem(key) || searchParams.get(key)) {
+                    if(searchParams.get(key)) {
+                        document.getElementById(searchParams.get(key)).checked = true;
+                    } else {
+                        document.getElementById(localStorage.getItem(key)).checked = true;
+                    }
+                }
+            } else if(checkboxes.includes(key)) {
+                if(localStorage.getItem(key) == 'on' || searchParams.get(key) == 'on') {
+                    document.getElementById(key).checked = true;    
+                } else {
+                    document.getElementById(key).checked = false;
+                }
+            } else {
+                if(searchParams.has(key)) {
+                    document.getElementById(key).value = searchParams.get(key);
+                } else {
+                    document.getElementById(key).value = localStorage.getItem(key);
+                }
+            }
+            //formData.set(key, localStorage.getItem(key));
+        }
+
+    }
+
+    for (key of checkboxes) {
+        if(localStorage.getItem(key) == 'on' || (searchParams.has(key) && searchParamrs.get(key) == 'on')) {
+            document.getElementById(key).checked = true;    
+        } else {
+            document.getElementById(key).checked = false;
+        }
+    }
+
+    lrc_calc_onchange();
 
 }
 
@@ -129,7 +188,6 @@ function lrc_calc_run() {
     var cmd_options = []
     var batch_options = []
     var env = []
-    var modules = []
 
     if(formData.get('account')) {
         options.push(`--account=${formData.get('account')}`);
@@ -199,7 +257,7 @@ function lrc_calc_run() {
             options.push(`--mincpus=${n_cores}`);
         }
         else if(partition.startsWith('lr_bigmem')) {
-            options.push(`--partition=lr7`);
+            options.push(`--partition=lr_bigmem`);
             n_cores = 32;
         }
         else if(partition.startsWith('es1')) {
@@ -240,7 +298,11 @@ function lrc_calc_run() {
     var qos = formData.get('qos');
     var prefix = '';
     if(partition.startsWith('lr')) {
-        prefix = 'lr';
+        if(partition.startsWith('lr6') && qos == 'lowprio') {
+            prefix = 'lr6';
+        } else {
+            prefix = 'lr';
+        }
     } else if(partition.startsWith('es1')) {
         prefix = 'es';
     }
@@ -250,10 +312,10 @@ function lrc_calc_run() {
         options.push(`--qos=${prefix}_debug`);
     } else if(qos == 'lowprio') {
         options.push(`--qos=${prefix}_lowprio`);
-    } else if(qos == 'condo') {
-        var condo = formData.get('condo');
-        if(condo) {
-            options.push(`--qos=condo_${condo}`);
+    } else if(qos == 'other') {
+        var qos_other = formData.get('qos_other');
+        if(qos_other) {
+            options.push(`--qos=${qos_other}`);
         } else {
             // condo is required
             return;
@@ -287,13 +349,16 @@ function lrc_calc_run() {
     // jobname is at the top
     // qos already dealt with
 
-    modules = formData.get('modules').split(/\s+/);
-
     var hours = parseInt(formData.get('hours'));
     var minutes = parseInt(formData.get('minutes'));
     var seconds = parseInt(formData.get('seconds'));
 
     if(qos == 'debug') {
+        if(hours > 0) {
+            hours = 0;
+            minutes = 60;
+            seconds = 0;
+        }
         if(minutes==60) {
             hours = 1;
             minutes = 0;
@@ -334,7 +399,7 @@ function lrc_calc_run() {
     }
 
     if(formData.get('verbose')) {
-        options.push('-v');
+        options.push('--verbose');
     }
 
     var su_free = 0;
@@ -344,7 +409,7 @@ function lrc_calc_run() {
         n_cores = Math.min(Math.max(n_cores, 16), 20);  // can be up to 28
         su_free=1;
         su_ratio=0.0;
-    } else if(qos == 'lowprio' || qos == 'debug') {
+    } else if(qos == 'lowprio') {
         su_free=1;
         su_ratio = 0.0;
     } else if(partition.startsWith('lr4')) {
@@ -381,30 +446,201 @@ function lrc_calc_run() {
     if(su_free==1) {
         e.innerHTML = 'FREE';
     } else {
-        var su_cost = su_ratio*n_cores*n_nodes*(hours + (minutes/60.0) + (seconds/3600.0));
-        console.log(su_cost);
+        var su_cost = Math.ceil(su_ratio*n_cores*n_nodes*(hours + (minutes/60.0) + (seconds/3600.0)));
         e.innerHTML = `${su_cost}`;
     }
 
+    slurm_script = '';
+
     var j = 3;
     e = document.getElementById("batch_file");
-    e.innerHTML = `<pre data-prefix="1">#!/bin/bash</code></pre>\n`;
-    e.innerHTML += `<pre data-prefix="2"><code>#</code></pre>\n`;
+
+    e.innerHTML = '<div class="btn m-2 absolute top-0 right-0" onclick="lrc_copy_slurm_script()">Copy</div>';
+
+    e.innerHTML += `<pre data-prefix="1">#!/bin/bash</code></pre>\n`;
+    slurm_script += "#!/bin/bash\n";
+
+    e.innerHTML += `<pre data-prefix="2"><code></code></pre>\n`;
+    slurm_script += "\n";
+
     for(i of options) {
         e.innerHTML += `<pre data-prefix="${j}"><code>#SBATCH ${i}</code></pre>`; 
+        slurm_script += `#SBATCH ${i}\n`;
         j += 1;
     }
     for(i of batch_options) {
         e.innerHTML += `<pre data-prefix="${j}"><code>#SBATCH ${i}</code></pre>`; 
+        slurm_script += `#SBATCH ${i}\n`;
         j += 1;
     }
     e.innerHTML += `<pre data-prefix="${j}"><code></code></pre>\n`;
+    slurm_script += `\n`;
     j += 1;
-    e.innerHTML += `<pre data-prefix="${j}"><code>module load ...</code></pre>\n`;
-    j += 1;
-    e.innerHTML += `<pre data-prefix="${j}"><code></code></pre>\n`;
-    j += 1;
-    e.innerHTML += `<pre data-prefix="${j}"><code>cmd</code></pre>\n`;
+    if (env.length > 0) {
+        for (v of env) {
+            e.innerHTML += `<pre data-prefix="${j}"><code>export ${v}</code></pre>\n`;
+            slurm_script += `export ${v}\n`;
+            j += 1;
+        }
+        e.innerHTML += `<pre data-prefix="${j}"><code></code></pre>\n`;
+        slurm_script += '\n';
+        j += 1;
+    }
 
+    commands = document.getElementById("commands").value;
+
+    var cli = "";
+
+    srun_command = "";
+
+    if (commands) {
+
+        var command_lines = commands.split(/\r?\n|\r|\n/g);
+
+        for (line of command_lines) {
+            e.innerHTML += `<pre data-prefix="${j}"><code>${line}</code></pre>\n`;
+            slurm_script += `${line}\n`;
+            j += 1;
+        }
+
+        e = document.getElementById("srun_command");
+        e.innerHTML = '<div class="btn m-2 absolute top-0 right-0" onclick="lrc_copy_srun_command()">Copy</div>';;
+
+        cli_prefix = '$';
+        cli_block = '';
+        cmd_indent = '';
+
+        cmd_needs_shell = false;
+
+        // non-empty command lines
+        command_lines_nonempty = [];
+        for (line of command_lines) {
+            if (line && line.trim()) {
+                command_lines_nonempty.push(line.trim().replace(/'/g, "\\'"));
+            }
+            line_trimmed = line.trim();
+            if (line_trimmed.includes('|') || line_trimmed.includes('&') || line_trimmed.includes('>')) {
+                cmd_needs_shell = true;
+            }
+        }
+        if (command_lines_nonempty.length > 1) {
+            cmd_needs_shell = true;
+        }
+
+        j = 0;
+        if (options.length > 0) {
+            for (opt of options) {
+                if (j == 0) {
+                    cli_block += `<pre data-prefix="${cli_prefix}"><code>${cmd_indent}srun ${opt}`;
+                    srun_command += `${cmd_indent}srun ${opt}`;
+                } else {
+                    cli_block += ` \\</code></pre><pre data-prefix=""><code>    ${opt}`;
+                    srun_command += ` \\\n    ${opt}`;
+                }
+                j += 1;
+                cli_prefix = '';
+            }
+        }
+
+        cmd_options_export = '--export=ALL';
+        if (env.length > 0) {
+            for (v of env) {
+                cmd_options_export += ',';
+                cmd_options_export += v;
+                j += 1;
+            }
+            cmd_options.push(cmd_options_export);
+        }
+
+        if (cmd_options.length > 0) {
+            for (opt of cmd_options) {
+                if (j == 0) {
+                    cli_block += `<pre data-prefix="${cli_prefix}"><code>${cmd_indent}srun ${opt}`;
+                    srun_command += `${cmd_indent}srun ${opt}`;
+                } else {
+                    cli_block += ` \\</code></pre><pre data-prefix=""><code>    ${opt}`;
+                    srun_command += ` \\\n    ${opt}`;
+                }
+                j += 1;
+                cli_prefix = '';
+            }
+        }
+        if (options.length > 0 || cmd_options > 0) {
+            cli_block += ` \\</code></pre>`;
+            srun_command += ` \\\n`;
+        }
+
+        j = 0;
+        multi_line_cmd = false;
+        for (line of command_lines_nonempty) {
+            if (cmd_needs_shell) {
+                if (j == 0) {
+                    cli_block += `<pre data-prefix="${cli_prefix}"><code>    /bin/bash -c '${line}`;
+                    srun_command += `    /bin/bash -c '${line}`;
+                } else {
+                    if (! multi_line_cmd) {
+                        cli_block += ';';
+                        srun_command += ';';
+                    }
+                    cli_block += `</code></pre><pre data-prefix=""><code>    ${line}`;
+                    srun_command += `\n    ${line}`;
+                }
+            } else {
+                if (j == 0) {
+                    cli_block += `<pre data-prefix="${cli_prefix}"><code>    ${line}`;
+                    srun_command += `    ${line}`;
+                } else {
+                    if (! multi_line_cmd) {
+                        cli_block += ';';
+                        srun_command += ';';
+                    }
+                    cli_block += `</code></pre><pre data-prefix=""><code>    ${line}`;
+                    srun_command += `\n    ${line}`;
+                }
+            }
+            if (line.trim().endsWith('\\')) {
+                multi_line_cmd = true;
+            } else {
+                multi_line_cmd = false;
+            }
+            j += 1;
+        }
+        if (cmd_needs_shell) {
+            cli_block += '\'';
+            srun_command += '\'';
+        }
+        cli_block += `</code></pre>`;
+        srun_command += '\n';
+
+        e.innerHTML += cli_block;
+
+    }
+
+    localStorage.clear();
+    for ( [key, value] of formData.entries()) {
+        localStorage.setItem(key, value);
+    }
+
+    for (key of checkboxes) {
+        if(document.getElementById(key).checked == true) {
+            localStorage.setItem(key, 'on');
+        } else {
+            localStorage.setItem(key, 'off');
+        }
+    }
 
 }
+
+function lrc_copy_slurm_script() {
+
+     // Copy the text inside the text field
+    navigator.clipboard.writeText(slurm_script);
+
+}
+
+function lrc_copy_srun_command() {
+
+    navigator.clipboard.writeText(srun_command);
+
+}
+
