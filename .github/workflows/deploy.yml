@@ -24,7 +24,7 @@ jobs:
       - name: Push to Deploy Branch
         run: |
           env | grep GITHUB
-          #git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           #git config --global user.name 'AWSchmeder'
           #git config --global user.email 'awschmeder@users.noreply.github.com'
           #echo "${GITHUB_REF:11}"
