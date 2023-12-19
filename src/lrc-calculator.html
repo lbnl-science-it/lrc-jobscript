@@ -1,4 +1,26 @@
-<!doctype html>
+<!-- 
+Copyright (c) 2023, The Regents of the University of California, 
+through Lawrence Berkeley National Laboratory (subject to receipt of any 
+required approvals from the U.S. Dept. of Energy).  All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+--><!doctype html>
 <html>
     <head>
         <title>LRC Service Cost Calculator</title>
@@ -12,7 +34,7 @@
     <!-- <h1 class="p-8 text-3xl sticky top-0 font-bold max-w bg-gray-600">LRC Job Configuration Assisstant</h1> -->
 
     <div class="grid xl:grid-cols-2 p-0">
-        <div class="p-0 xl:overflow-scroll xl:overscroll-contain xl:h-screen">
+        <div class="p-0 xl:overflow-scroll xl:overscroll-contain xl:h-screen bg-gray-600">
             <h1 class="text-2xl p-4 z-50 font-bold xl:sticky xl:top-0 m-0 bg-gray-600">LRC Job Parameters</h1>
             <!-- <form id="form" onSubmit="return (lrc_calc_run() && false)"> -->
             <form method="get" action="" id="form">
@@ -39,7 +61,7 @@
                         </select>
                     </label>
                     
-                        <label class="form-control w-full m-2" id="condo_block">
+                    <label class="form-control w-full m-2" id="condo_block">
                         <div class="label">
                         <span class="label-text">Other QOS Name (e.g. condo_xyz, xyz_highprio, ...)</span>
                         </div>
@@ -64,7 +86,7 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="table">
+                        <table class="table" onclick="">
                           <!-- head -->
                           <thead>
                             <tr>
@@ -185,10 +207,26 @@
                                 <td>16 SU/GPU</td>
                             </tr>
                             
+                            <tr class="hidden">
+                                <td><input type="radio" name="partition" class="radio-sm" id="partition_is_other" value="other" oninput="lrc_calc_onchange()" /></td>
+                                <td>Other</td>
+                                <td>Specify Partition Below</td>
+                                <td>_</td>
+                                <td>_</td>
+                                <td>_</td>
+                            </tr>
+                            
                           </tbody>
                         </table>
                       </div>
 
+                </label>
+
+                <label class="form-control w-full m-2 hidden" id="condo_block">
+                    <div class="label">
+                    <span class="label-text">Other Partition Name (e.g. csd_lr6_192, ...)</span>
+                    </div>
+                    <input id="partition_other" name="partition_other" type="text" placeholder="" oninput="lrc_calc_onchange()" class="input input-bordered w-full max-w-xs" />
                 </label>
 
                 <label class="form-control w-max m-2 hidden" id="cores_block">
@@ -335,7 +373,7 @@
                     </label>               
                 </div>
                 
-                <h1 class="text-sm pt-4 m-2">Batch Options</h1>
+            <h1 class="text-sm pt-4 m-2">Batch Options</h1>
                 <div class="px-2">
                     <label class="form-control w-max m-2">
                         <div class="label">
@@ -356,17 +394,21 @@
                 
                     <label class="form-control w-max m-2">
                         <div class="label">
-                        <span class="label-text">Prepend Task Number to Outputs</span>
-                        </div>
-                        <input name="label" id="label" type="checkbox" class="toggle" checked="checked" oninput="lrc_calc_onchange()" />
-                    </label>
-                    
-                    <label class="form-control w-max m-2">
-                        <div class="label">
                         <span class="label-text">Quit on Single Ctrl-C Interrupt</span>
                         </div>
                         <input name="quit" id="quit" type="checkbox" class="toggle" checked="checked" oninput="lrc_calc_onchange()" />
                     </label>
+
+                    <div class="px-2">
+                        <label class="form-control w-max m-2">
+                        <div class="label">
+                        <span class="label-text">Prepend Task Number to Outputs</span>
+                        </div>
+                        <input name="label" id="label" type="checkbox" class="toggle" checked="checked" oninput="lrc_calc_onchange()" />
+                        </label>
+                    </div>
+                    
+    
                 </div>
 
                 </div><!-- end job information -->
@@ -377,14 +419,14 @@
 
             </form>
         </div>
-        <div class="p-0 xl:h-screen xl:overflow-scroll xl:overscroll-none">
-            <h1 class="text-2xl p-4 font-bold m-0 bg-blue-600 xl:sticky xl:top-0 xl:z-50">LRC Job Script Result</h1>
+        <div class="p-0 xl:h-screen xl:overflow-scroll xl:overscroll-none bg-blue-800">
+            <h1 class="text-2xl p-4 font-bold m-0  bg-blue-800 xl:sticky xl:top-0 xl:z-50">LRC Job Script Result</h1>
 
             <div class="m-2 p-2 border-2">
                 <h1 class="text-lg font-bold m-0">LRC Service Cost</h1>
                 <div class="p-2">
                     <div class="stats shadow w-full">
-                        <div class="stat w-full  bg-blue-800">
+                        <div class="stat w-full">
                             <div class="stat-title">Estimated Total Service Units</div>
                             <div class="stat-value" id="su_cost">TBD</div>
                         </div>
