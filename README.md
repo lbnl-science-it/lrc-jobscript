@@ -1,6 +1,8 @@
-# lrc-jobscript-tool
+# lrc-jobscript
 
-Web page tool for calculating LRC jobscripts and srun commands, estimating SU costs.
+Web-based interface for calculating LRC Slurm batch scripts, srun commands, and estimating SU costs.
+
+Open [LRC Jobscript Tool](https://lbnl-science-it.github.io/lrc-jobscript/src/lrc-calculator.html)
 
 Dependencies: node, tailwind-css, daisy-ui
 
