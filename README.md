@@ -4,7 +4,15 @@ Web page tool for calculating LRC jobscripts and srun commands, estimating SU co
 
 Dependencies: node, tailwind-css, daisy-ui
 
-TODO list:
+TODO:
+
+~~~
+- Fix UI glitch with LR3 auto-selecting when clicking on list
+- Add price comparisons to GCP and AWS
+- Auto build deployment with node and tailwind
+~~~
+
+DONE:
 
 ~~~
 x Check that script generation is correct
@@ -13,7 +21,7 @@ x Add warning boxes on generation
 x Override defaults by reading from GET args
 x Submit button to GET on self
 x Add a "Copy" button to SLURM script and CLI
-- Fix UI glitch with LR3 auto-selecting when clicking on list
+x CI Action auto-pushes to deploy (see deploy.yml)
 ~~~
 
 Copyright (c) 2023, The Regents of the University of California, 
