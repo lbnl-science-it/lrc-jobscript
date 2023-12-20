@@ -25,7 +25,8 @@ jobs:
       - name: Merge
         run: |
           git status
-          #git checkout deploy
+          git checkout deploy
+          git status
           #git config user.name 'github-actions[bot]'
           #git config user.email 'github-actions[bot]@users.noreply.github.com'
           #git merge main
