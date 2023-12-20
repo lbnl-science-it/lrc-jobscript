@@ -26,12 +26,11 @@ jobs:
         run: |
           git fetch
           git checkout deploy
-          git status
-          #git config user.name 'github-actions[bot]'
-          #git config user.email 'github-actions[bot]@users.noreply.github.com'
-          #git merge main
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git merge main
       - name: Push
         run: |
           git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
           git status
-          #git push origin deploy
+          git push origin deploy
