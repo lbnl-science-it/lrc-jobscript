@@ -14,21 +14,26 @@ permissions:
   contents: write
 
 concurrency:
-  group: "pages"
+  group: "deploy"
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Merge
         run: |
+          git fetch
           git checkout deploy
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git merge main
+          git merge main --allow-unrelated-histories -X theirs
+          git status
       - name: Push
         run: |
-          git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          echo ${{ github.repository }}
+          git status
+          git push
           git push origin deploy
