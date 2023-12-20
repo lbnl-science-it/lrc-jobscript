@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Merge
         run: |
-          git status
+          git fetch
           git checkout deploy
           git status
           #git config user.name 'github-actions[bot]'
