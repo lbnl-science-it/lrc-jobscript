@@ -99,17 +99,15 @@ function lrc_calc_onchange() {
     const submitter = document.getElementById("submit");
     const formData = new FormData(form, submitter);
 
-    if (formData.get('partition') == 'lr7_32' || formData.get('partition') == 'lr7_40') {
+    if (formData.get('partition').includes('lr7')) {
         document.getElementById('cores_block').classList.remove('hidden');
 
-        if (formData.get('partition') == 'lr7_32') {
-            document.getElementById('n_cores').max = 32
-            document.getElementById('n_cores').value = Math.min(32, document.getElementById('n_cores').value);
-        }
-        else if (formData.get('partition') == 'lr7_40') {
-            document.getElementById('n_cores').max = 40
-            document.getElementById('n_cores').value = Math.min(40, document.getElementById('n_cores').value);
-        }
+        // split partition string on _
+
+        var max_cores = parseInt(formData.get('partition').split('_')[1]);
+
+        document.getElementById('n_cores').max = max_cores
+        document.getElementById('n_cores').value = Math.min(max_cores, document.getElementById('n_cores').value);
 
     } else {
         if (! document.getElementById('cores_block').classList.contains("hidden")) {
@@ -234,54 +232,28 @@ function lrc_calc_run() {
     n_gpus = parseInt(formData.get('n_gpus'));
     n_nodes = parseInt(formData.get('n_nodes'));
 
-    var partition = formData.get('partition')
-    if(partition) {
-        if(partition.startsWith('lr3')) {
-            options.push(`--partition=lr3`);
+    var partition = formData.get('partition');
 
-            if(partition == 'lr3_16') {
-                n_cores = 16;
-                options.push('--mincpus=16');
-            } else if(partition == 'lr3_20') {
-                n_cores = 20;
-                options.push('--mincpus=20');
-            }
+    // parse out the number of cores and ram if partition is not lr_bigmem or es1
+    if (partition != 'lr_bigmem' && ! partition.startsWith('es1')) {
+        var partition_base = partition.split('_')[0];
+        var partition_cores = partition.split('_')[1];
+        var req_ram = parseInt(partition.split('_')[2]);
 
-        }
-        else if(partition.startsWith('lr4')) {
-            n_cores = 24;
-            options.push(`--partition=lr4`);
-        }
-        else if(partition.startsWith('lr5')) {
-            options.push(`--partition=lr5`);
-            if(partition == 'lr5_20') {
-                n_cores = 20;
-                options.push('--mincpus=20');
-            } else if(partition == 'lr5_28') {
-                n_cores = 28;
-                options.push('--mincpus=28');
-            }
-        }
-        else if(partition.startsWith('lr6')) {
-            options.push(`--partition=lr6`);
-            if(partition == 'lr6_32') {
-                n_cores = 32;
-                options.push('--mincpus=32');
-            } else if(partition == 'lr6_40') {
-                n_cores = 40;
-                options.push('--mincpus=40');
-            }
-        }
-        else if(partition.startsWith('lr7')) {
-            options.push(`--partition=lr7`);
-            if (partition == 'lr7_32') {
-                options.push('--mem=96GB');
-            } else if(partition == 'lr7_40') {
-                options.push('--mem=128GB');
-            }
+        options.push('--partition=' + partition_base);
+
+        if (partition_base == 'lr7') {
             options.push(`--mincpus=${n_cores}`);
+        } else {
+            options.push('--mincpus=' + partition_cores);
+            n_cores = parseInt(partition_cores);
         }
-        else if(partition.startsWith('lr_bigmem')) {
+
+        // minimum memory with some buffer for reserved memory / unavailable 
+        options.push('--mem=' + (req_ram - Math.ceil(req_ram/64) * 2) + 'G');
+    } else {
+
+        if(partition.startsWith('lr_bigmem')) {
             options.push(`--partition=lr_bigmem`);
             n_cores = 32;
         }
@@ -302,11 +274,9 @@ function lrc_calc_run() {
                 n_cores = n_gpus*16;
             }
         } else {
-            return;
+            return; // partition not found or not specified, return here...
         }
-        
-    } else { // partition is required
-        return;
+
     }
 
     if(n_nodes > 0) {
@@ -431,7 +401,7 @@ function lrc_calc_run() {
     var su_ratio = 1.0;
     
     if (partition.startsWith('lr3')) {
-        n_cores = Math.min(Math.max(n_cores, 16), 20);  // can be up to 28
+        n_cores = Math.min(Math.max(n_cores, 16), 32);  // can be up to 28
         su_free=1;
         su_ratio=0.0;
     } else if(qos == 'lowprio') {
