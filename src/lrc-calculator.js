@@ -99,7 +99,7 @@ function lrc_calc_onchange() {
     const submitter = document.getElementById("submit");
     const formData = new FormData(form, submitter);
 
-    if (formData.get('partition').includes('lr7')) {
+    if (formData.get('partition').includes('lr7') || formData.get('partition').includes('lr8')) {
         document.getElementById('cores_block').classList.remove('hidden');
 
         // split partition string on _
@@ -242,7 +242,7 @@ function lrc_calc_run() {
 
         options.push('--partition=' + partition_base);
 
-        if (partition_base == 'lr7') {
+        if (partition_base == 'lr7' || partition_base == 'lr8') {
             options.push(`--mincpus=${n_cores}`);
         } else {
             options.push('--mincpus=' + partition_cores);
@@ -400,26 +400,24 @@ function lrc_calc_run() {
     var su_free = 0;
     var su_ratio = 1.0;
     
-    if (partition.startsWith('lr3')) {
-        n_cores = Math.min(Math.max(n_cores, 16), 32);  // can be up to 28
+    if (partition.startsWith('lr4')) {
+        n_cores = Math.min(Math.max(n_cores, 24), 24);  
         su_free=1;
         su_ratio=0.0;
     } else if(qos == 'lowprio') {
         su_free=1;
         su_ratio = 0.0;
-    } else if(partition.startsWith('lr4')) {
-        // min cores
-        n_cores = Math.max(n_cores, 24);
-        su_ratio = 0.5;
-        Math.max(n_cores, 24)
     } else if(partition.startsWith('lr5')) {
         n_cores = Math.min(Math.max(n_cores, 20), 28);
-        su_ratio = 0.75;
+        su_ratio = 0.5;
     } else if(partition.startsWith('lr6')) {
         n_cores = Math.min(Math.max(n_cores, 32), 40);
-        su_ratio = 1.0;
+        su_ratio = 0.75;
     } else if(partition.startsWith('lr7')) {
         n_cores = Math.min(Math.max(n_cores, 1), 56);
+        su_ratio = 1.0;
+    } else if(partition.startsWith('lr8')) {
+        n_cores = Math.min(Math.max(n_cores, 1), 128);
         su_ratio = 1.0;
     } else if(partition.startsWith('lr_bigmem')) {
         n_cores = Math.min(Math.max(n_cores, 32), 32);
@@ -429,7 +427,7 @@ function lrc_calc_run() {
         su_ratio = 0.4;
     } else if(partition.startsWith('cm1')) {
         n_cores = Math.min(Math.max(n_cores, 64), 64);
-        su_ratio = 0.4;
+        su_ratio = 0.75;
     } else if(partition.startsWith('ood_inter')) {
         su_ratio = 1.0;
         n_cores = 1;
