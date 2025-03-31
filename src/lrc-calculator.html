@@ -99,46 +99,13 @@ SOFTWARE.
                               <th>Cost/Hour</th>
                             </tr>
                           </thead>
-                          <tbody>
-                            <tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_16_64" value="lr3_16_64" checked="checked" oninput="lrc_calc_onchange()" /></td>
-                                <td>LR3:16/64</td>
-                                <td>Xeon E5-2670v1 2.6Ghz</td>
-                                <td>16</td>
-                                <td>64GB</td>
-                                <td>Free</td>
-                            </tr>
-                            <tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_20_64" value="lr3_20_64" oninput="lrc_calc_onchange()" /></td>
-                                <td>LR3:20/64</td>
-                                <td>Xeon E5-2670v2 2.5Ghz</td>
-                                <td>20</td>
-                                <td>64GB</td>
-                                <td>Free</td>
-                            </tr>
-                            <tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_32_256" value="lr3_32_256" oninput="lrc_calc_onchange()" /></td>
-                                <td>LR3:32/256</td>
-                                <td>Xeon E5-2698v3 2.3Ghz</td>
-                                <td>32</td>
-                                <td>256GB</td>
-                                <td>Free</td>
-                            </tr>
-                            <tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="lr3_32_512" value="lr3_32_512" oninput="lrc_calc_onchange()" /></td>
-                                <td>LR3:32/512</td>
-                                <td>Xeon E5-2698v3 2.3Ghz</td>
-                                <td>32</td>
-                                <td>512GB</td>
-                                <td>Free</td>
-                            </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr4_24_64" value="lr4_24_64" oninput="lrc_calc_onchange()" /></td>
                                 <td>LR4:24/64</td>
                                 <td>Xeon E5-2670v3 2.3Ghz</td>
                                 <td>24</td>
                                 <td>64GB</td>
-                                <td>12 SU/node</td>
+                                <td>Free</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr5_20_128" value="lr5_20_128" oninput="lrc_calc_onchange()" /></td>
@@ -146,7 +113,7 @@ SOFTWARE.
                                 <td>Xeon E5-2680v4 2.4Ghz</td>
                                 <td>20</td>
                                 <td>128GB</td>
-                                <td>15 SU/node</td>
+                                <td>10 SU/node</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr5_28_128" value="lr5_28_64" oninput="lrc_calc_onchange()" /></td>
@@ -154,7 +121,7 @@ SOFTWARE.
                                 <td>Xeon E5-2640v4 2.4Ghz</td>
                                 <td>28</td>
                                 <td>64GB</td>
-                                <td>21 SU/node</td>
+                                <td>14 SU/node</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr6_32_96" value="lr6_32_96" oninput="lrc_calc_onchange()" /></td>
@@ -162,7 +129,7 @@ SOFTWARE.
                                 <td>Xeon Gold 5128 2.1Ghz</td>
                                 <td>32</td>
                                 <td>96GB</td>
-                                <td>32 SU/node</td>
+                                <td>24 SU/node</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr6_32_192" value="lr6_32_192" oninput="lrc_calc_onchange()" /></td>
@@ -170,7 +137,7 @@ SOFTWARE.
                                 <td>Xeon Gold 5128 2.1Ghz</td>
                                 <td>32</td>
                                 <td>192GB</td>
-                                <td>32 SU/node</td>
+                                <td>24 SU/node</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr6_40_96" value="lr6_40_96" oninput="lrc_calc_onchange()" /></td>
@@ -178,7 +145,7 @@ SOFTWARE.
                                 <td>Xeon Gold 6230 2.1Ghz</td>
                                 <td>40</td>
                                 <td>96GB</td>
-                                <td>40 SU/node</td>
+                                <td>30 SU/node</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr6_40_192" value="lr6_40_192" oninput="lrc_calc_onchange()" /></td>
@@ -186,7 +153,7 @@ SOFTWARE.
                                 <td>Xeon Gold 6230 2.1Ghz</td>
                                 <td>40</td>
                                 <td>192GB</td>
-                                <td>40 SU/node</td>
+                                <td>30 SU/node</td>
                             </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr7_56_256" value="lr7_56_256" oninput="lrc_calc_onchange()"/></td>
@@ -204,6 +171,14 @@ SOFTWARE.
                                 <td>512GB</td>
                                 <td>1 SU/core</td>
                             </tr>
+                            <tr>
+                              <td><input type="radio" name="partition" class="radio-sm" id="lr8_128_768" value="lr8_128_768" oninput="lrc_calc_onchange()"/></td>
+                              <td>LR8:128/768</td>
+                              <td>AMD EPYC 9534</td>
+                              <td>1-128</td>
+                              <td>768GB</td>
+                              <td>1 SU/core</td>
+                          </tr>
                             <tr>
                                 <td><input type="radio" name="partition" class="radio-sm" id="lr_bigmem" value="lr_bigmem" oninput="lrc_calc_onchange()"/></td>
                                 <td>LR_BIGMEM</td>
