@@ -115,7 +115,7 @@ function lrc_calc_onchange() {
         }
     }
 
-    if (formData.get('partition') == 'es1_v100' || formData.get('partition') == 'es1_a40' || formData.get('partition') == 'es1_2080ti') {
+    if (formData.get('partition') == 'es1_v100' || formData.get('partition') == 'es1_a40' || formData.get('partition') == 'es1_2080ti' || formData.get('partition') == 'es1_h100') {
         document.getElementById('gpus_block').classList.remove('hidden');
 
         if (formData.get('partition') == 'es1_2080ti') {
@@ -133,6 +133,11 @@ function lrc_calc_onchange() {
             document.getElementById('n_gpus').value = Math.min(4, document.getElementById('n_gpus').value);
             document.getElementById('n_cores').value = document.getElementById('n_gpus').value * 16;
         }
+        if (formData.get('partition') == 'es1_h100') {
+          document.getElementById('n_gpus').max = 8;
+          document.getElementById('n_gpus').value = Math.min(8, document.getElementById('n_gpus').value);
+          document.getElementById('n_cores').value = document.getElementById('n_gpus').value * 14;
+      }        
 
     } else {
         if (! document.getElementById('gpus_block').classList.contains("hidden")) {
@@ -272,6 +277,10 @@ function lrc_calc_run() {
                 options.push(`--gres=gpu:A40:${n_gpus}`);
                 options.push(`--mincpus=${n_gpus*16}`);
                 n_cores = n_gpus*16;
+            } else if(partition == 'es1_h100') {
+                options.push(`--gres=gpu:H100:${n_gpus}`);
+                options.push(`--mincpus=${n_gpus*14}`);
+                n_cores = n_gpus*14;
             }
         } else {
             return; // partition not found or not specified, return here...
