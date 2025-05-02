@@ -115,10 +115,10 @@ function lrc_calc_onchange() {
         }
     }
 
-    if (formData.get('partition') == 'es1_v100' || formData.get('partition') == 'es1_a40' || formData.get('partition') == 'es1_2080ti' || formData.get('partition') == 'es1_h100') {
+    if (formData.get('partition') == 'es1_v100' || formData.get('partition') == 'es1_a40' || formData.get('partition') == 'es0_2080ti' || formData.get('partition') == 'es1_h100') {
         document.getElementById('gpus_block').classList.remove('hidden');
 
-        if (formData.get('partition') == 'es1_2080ti') {
+        if (formData.get('partition') == 'es0_2080ti') {
             document.getElementById('n_gpus').max = 4;
             document.getElementById('n_gpus').value = Math.min(4, document.getElementById('n_gpus').value);
             document.getElementById('n_cores').value = document.getElementById('n_gpus').value * 2;
@@ -154,6 +154,8 @@ function lrc_calc_onchange() {
         document.getElementById('n_nodes').max = 2;
     } else if(formData.get('partition').startsWith('es1')) {
         document.getElementById('n_nodes').max = 20;
+    } else if(formData.get('partition').startsWith('es0')) {
+        document.getElementById('n_nodes').max = 15;
     } else {
         document.getElementById('n_nodes').max = 32;
     }
@@ -240,7 +242,7 @@ function lrc_calc_run() {
     var partition = formData.get('partition');
 
     // parse out the number of cores and ram if partition is not lr_bigmem or es1
-    if (partition != 'lr_bigmem' && ! partition.startsWith('es1')) {
+    if (partition != 'lr_bigmem' && ! partition.startsWith('es1') && ! partition.startsWith('es0')) {
         var partition_base = partition.split('_')[0];
         var partition_cores = partition.split('_')[1];
         var req_ram = parseInt(partition.split('_')[2]);
@@ -269,10 +271,6 @@ function lrc_calc_run() {
                 options.push(`--gres=gpu:V100:${n_gpus}`);
                 options.push(`--mincpus=${n_gpus*4}`);
                 n_cores = n_gpus*4;
-            } else if(partition == 'es1_2080ti') {
-                options.push(`--gres=gpu:GRTX2080TI:${n_gpus}`);
-                options.push(`--mincpus=${n_gpus*2}`);
-                n_cores = n_gpus*2;
             } else if(partition == 'es1_a40') {
                 options.push(`--gres=gpu:A40:${n_gpus}`);
                 options.push(`--mincpus=${n_gpus*16}`);
@@ -282,6 +280,12 @@ function lrc_calc_run() {
                 options.push(`--mincpus=${n_gpus*14}`);
                 n_cores = n_gpus*14;
             }
+        }
+        else if(partition.startsWith('es0')) {
+            options.push(`--partition=es0`);
+            options.push(`--gres=gpu:${n_gpus}`);
+            options.push(`--mincpus=${n_gpus*2}`);
+            n_cores = n_gpus*2;
         } else {
             return; // partition not found or not specified, return here...
         }
@@ -307,7 +311,7 @@ function lrc_calc_run() {
         } else {
             prefix = 'lr';
         }
-    } else if(partition.startsWith('es1')) {
+    } else if(partition.startsWith('es1') || partition.startsWith('es0')) {
         prefix = 'es';
     }
     if(qos == 'normal') {
@@ -442,6 +446,9 @@ function lrc_calc_run() {
         n_cores = 1;
     } else if(partition.startsWith('es1')) {
         su_ratio = 1.0;
+    } else if(partition.startsWith('es0')) {
+        su_ratio = 0.0;
+        su_free=1;
     }
 
     e = document.getElementById("su_cost");
