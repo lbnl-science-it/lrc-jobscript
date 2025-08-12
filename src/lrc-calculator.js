@@ -308,7 +308,7 @@ function lrc_calc_run() {
     if(partition.startsWith('lr')) {
         if(partition.startsWith('lr6') && qos == 'lowprio') {
             prefix = 'lr6';
-        } else if(partition.startsWith('lr8') {
+        } else if(partition.startsWith('lr8')) {
             prefix = 'lr8';
         } else {
             prefix = 'lr';
