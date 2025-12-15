@@ -272,6 +272,7 @@ function lrc_calc_run() {
                 options.push(`--mincpus=${n_gpus*14}`);
                 n_cores = n_gpus*14;
             } else if(partition == 'es2_h200') {
+                options.push(`--mem-per-cpu=${18400}`);
                 options.push(`--gres=gpu:H200:${n_gpus}`);
                 options.push(`--mincpus=${n_gpus*14}`);
                 n_cores = n_gpus*14;
