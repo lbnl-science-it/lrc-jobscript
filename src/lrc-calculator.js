@@ -115,7 +115,7 @@ function lrc_calc_onchange() {
         }
     }
 
-    if (formData.get('partition') == 'es1_v100' || formData.get('partition') == 'es1_a40' || formData.get('partition') == 'es0_2080ti' || formData.get('partition') == 'es1_h100') {
+    if (formData.get('partition') == 'es1_v100' || formData.get('partition') == 'es1_a40' || formData.get('partition') == 'es0_2080ti' || formData.get('partition') == 'es2_h100' || formData.get('partition') == 'es2_h200') {
         document.getElementById('gpus_block').classList.remove('hidden');
 
         if (formData.get('partition') == 'es0_2080ti') {
@@ -133,11 +133,11 @@ function lrc_calc_onchange() {
             document.getElementById('n_gpus').value = Math.min(4, document.getElementById('n_gpus').value);
             document.getElementById('n_cores').value = document.getElementById('n_gpus').value * 16;
         }
-        if (formData.get('partition') == 'es1_h100') {
+        if (formData.get('partition') == 'es2_h100' || formData.get('partition') == 'es2_h200') {
           document.getElementById('n_gpus').max = 8;
           document.getElementById('n_gpus').value = Math.min(8, document.getElementById('n_gpus').value);
           document.getElementById('n_cores').value = document.getElementById('n_gpus').value * 14;
-      }        
+        }        
 
     } else {
         if (! document.getElementById('gpus_block').classList.contains("hidden")) {
@@ -242,7 +242,7 @@ function lrc_calc_run() {
     var partition = formData.get('partition');
 
     // parse out the number of cores and ram if partition is not lr_bigmem or es1
-    if (partition != 'lr_bigmem' && ! partition.startsWith('es1') && ! partition.startsWith('es0')) {
+    if (partition != 'lr_bigmem' && ! partition.startsWith('es')) {
         var partition_base = partition.split('_')[0];
         var partition_cores = partition.split('_')[1];
         var req_ram = parseInt(partition.split('_')[2]);
@@ -264,6 +264,19 @@ function lrc_calc_run() {
             options.push(`--partition=lr_bigmem`);
             n_cores = 32;
         }
+        else if(partition.startsWith('es2')) {
+            options.push(`--partition=es2`);
+
+            if (partition == 'es2_h100') {
+                options.push(`--gres=gpu:H100:${n_gpus}`);
+                options.push(`--mincpus=${n_gpus*14}`);
+                n_cores = n_gpus*14;
+            } else if(partition == 'es2_h200') {
+                options.push(`--gres=gpu:H200:${n_gpus}`);
+                options.push(`--mincpus=${n_gpus*14}`);
+                n_cores = n_gpus*14;
+            }
+        }
         else if(partition.startsWith('es1')) {
             options.push(`--partition=es1`);
 
@@ -275,10 +288,6 @@ function lrc_calc_run() {
                 options.push(`--gres=gpu:A40:${n_gpus}`);
                 options.push(`--mincpus=${n_gpus*16}`);
                 n_cores = n_gpus*16;
-            } else if(partition == 'es1_h100') {
-                options.push(`--gres=gpu:H100:${n_gpus}`);
-                options.push(`--mincpus=${n_gpus*14}`);
-                n_cores = n_gpus*14;
             }
         }
         else if(partition.startsWith('es0')) {
@@ -313,11 +322,15 @@ function lrc_calc_run() {
         } else {
             prefix = 'lr';
         }
-    } else if(partition.startsWith('es1') || partition.startsWith('es0')) {
+    } else if(partition.startsWith('es')) {
         prefix = 'es';
     }
     if(qos == 'normal') {
-        options.push(`--qos=${prefix}_normal`);
+        if (!partition.startsWith('es2')) {
+            options.push(`--qos=${prefix}_normal`);
+        } else {
+            options.push(`--qos=es2_normal`);
+        }
     } else if(qos == 'debug') {
         options.push(`--qos=${prefix}_debug`);
     } else if(qos == 'lowprio') {
@@ -446,6 +459,8 @@ function lrc_calc_run() {
     } else if(partition.startsWith('ood_inter')) {
         su_ratio = 1.0;
         n_cores = 1;
+    } else if(partition.startsWith('es2')) {
+        su_ratio = 2.0;
     } else if(partition.startsWith('es1')) {
         su_ratio = 1.0;
     } else if(partition.startsWith('es0')) {
