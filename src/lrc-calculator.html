@@ -214,15 +214,22 @@ SOFTWARE.
                                 <td>512GB</td>
                                 <td>16 SU/GPU</td>
                             </tr>
-                                <td><input type="radio" name="partition" class="radio-sm" id="es1_h100" value="es1_h100" oninput="lrc_calc_onchange()" /></td>
-                                <td>ES1:H100</td>
+                            <tr>
+                                <td><input type="radio" name="partition" class="radio-sm" id="es2_h100" value="es2_h100" oninput="lrc_calc_onchange()" /></td>
+                                <td>ES2:H100</td>
                                 <td>Intel Xeon Platinum 8480+ + 8x H100</td>
                                 <td>112</td>
                                 <td>1TB</td>
-                                <td>14 SU/GPU</td>                            
-                            <tr>
-
+                                <td>28 SU/GPU</td>                            
                             </tr>
+                            <tr>
+                                <td><input type="radio" name="partition" class="radio-sm" id="es2_h200" value="es2_h200" oninput="lrc_calc_onchange()" /></td>
+                                <td>ES2:H200</td>
+                                <td>Intel Xeon Platinum 8570+ + 8x H200</td>
+                                <td>112</td>
+                                <td>2TB</td>
+                                <td>28 SU/GPU</td>                            
+                            </tr>                            
                             <tr class="hidden">
                                 <td><input type="radio" name="partition" class="radio-sm" id="partition_is_other" value="other" oninput="lrc_calc_onchange()" /></td>
                                 <td>Other</td>
