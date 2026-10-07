@@ -1,0 +1,617 @@
+/*
+ * Slurm jobscript generator. Shared by the scienceit-docs MkDocs site
+ * (hpc/jobscript-generator.md) and the standalone page, which supplies the
+ * Material for MkDocs styles this file relies on in standalone.css.
+ */
+
+.jsg {
+  /* Distance of the sticky output column from the top of the viewport (below Material's header and tabs). */
+  --jsg-sticky-top: 5.4rem;
+  --jsg-ink: var(--md-primary-fg-color, #00313C);
+  --jsg-accent: var(--md-primary-fg-color--dark, #007681);
+  --jsg-accent-tint: rgba(0, 118, 129, 0.08);
+  --jsg-accent-ring: rgba(0, 118, 129, 0.25);
+  --jsg-rule: var(--md-typeset-table-color, rgba(0, 0, 0, 0.12));
+  --jsg-input-border: var(--md-default-fg-color--lighter, rgba(0, 0, 0, 0.32));
+  --jsg-muted: var(--md-default-fg-color--light, rgba(0, 0, 0, 0.54));
+  --jsg-radius: 0.2rem;
+  container-type: inline-size;
+  margin: 1.2em 0 2.4em;
+}
+
+.jsg [hidden] {
+  display: none !important;
+}
+
+.md-typeset .jsg p {
+  margin: 0;
+}
+
+.jsg__layout {
+  display: grid;
+  gap: 2em;
+}
+
+/* Material scales the root font size on large screens, so widths use em. */
+@container (min-width: 50em) {
+  .jsg__layout {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .jsg__out {
+    position: sticky;
+    top: var(--jsg-sticky-top);
+    max-height: calc(100vh - var(--jsg-sticky-top) - 0.6rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 0.4em;
+  }
+}
+
+/* Without the sticky navigation tabs, the header alone is 2.4rem tall. */
+@media screen and (max-width: 76.2344em) {
+  .jsg {
+    --jsg-sticky-top: 3rem;
+  }
+}
+
+/* ---- Steps */
+
+.jsg-step {
+  margin: 0 0 2em;
+}
+
+.md-typeset .jsg-step__title {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0 0 0.9em;
+  font-size: 1.05em;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--md-default-fg-color);
+}
+
+.jsg-step__n {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  background: var(--jsg-ink);
+  color: #fff;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Fields */
+
+.jsg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11em), 1fr));
+  gap: 0.9em 1em;
+}
+
+.jsg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  min-width: 0;
+  margin-bottom: 0.9em;
+}
+
+.jsg-grid .jsg-field {
+  margin-bottom: 0;
+}
+
+.jsg-field > label,
+.jsg-fieldset > legend {
+  font-size: 0.82em;
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+
+.jsg-optional {
+  font-weight: 400;
+  color: var(--jsg-muted);
+}
+
+.jsg-fieldset {
+  border: 0;
+  margin: 0 0 0.9em;
+  padding: 0;
+  min-width: 0;
+}
+
+.jsg-fieldset > legend {
+  padding: 0;
+  margin-bottom: 0.4em;
+}
+
+.jsg input[type="text"],
+.jsg input[type="email"],
+.jsg input[type="number"],
+.jsg select,
+.jsg textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.45em 0.6em;
+  border: 1px solid var(--jsg-input-border);
+  border-radius: var(--jsg-radius);
+  background-color: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font: inherit;
+  font-size: 0.85em;
+  line-height: 1.4;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.jsg input[type="number"] {
+  font-variant-numeric: tabular-nums;
+}
+
+.jsg textarea {
+  min-height: 9em;
+  resize: vertical;
+  font-family: var(--md-code-font-family, "Roboto Mono", monospace);
+  font-size: 0.8em;
+}
+
+.jsg input::placeholder,
+.jsg textarea::placeholder {
+  color: var(--jsg-muted);
+}
+
+.jsg input:focus,
+.jsg select:focus,
+.jsg textarea:focus {
+  outline: none;
+  border-color: var(--jsg-accent);
+  box-shadow: 0 0 0 0.15em var(--jsg-accent-ring);
+}
+
+.jsg input[type="radio"],
+.jsg input[type="checkbox"] {
+  accent-color: var(--jsg-accent);
+}
+
+.jsg-hint {
+  font-size: 0.78em;
+  line-height: 1.5;
+  color: var(--jsg-muted);
+}
+
+.md-typeset .jsg-hint {
+  margin-top: 0.5em;
+}
+
+.jsg-derived {
+  margin-top: 0.9em !important;
+  font-size: 0.82em;
+  color: var(--md-default-fg-color);
+}
+
+.jsg-check {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55em;
+  margin: 0.9em 0 0;
+  font-size: 0.82em;
+  cursor: pointer;
+}
+
+.jsg-check input {
+  flex: none;
+  margin: 0;
+  transform: translateY(0.1em);
+}
+
+.md-typeset .jsg code {
+  font-size: 0.9em;
+}
+
+/* ---- Partition tables */
+
+.jsg-scroll {
+  overflow-x: auto;
+}
+
+.jsg-ptable {
+  min-width: 22em;
+  margin-bottom: 1.1em;
+  font-size: 0.8em;
+}
+
+.jsg-ptable__caption {
+  margin-bottom: 0.35em;
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--jsg-muted);
+}
+
+.jsg-ptable__head,
+.jsg-ptable__row {
+  display: grid;
+  align-items: center;
+  gap: 0 0.8em;
+  padding: 0.42em 0.7em;
+}
+
+.jsg-ptable--cpu .jsg-ptable__head,
+.jsg-ptable--cpu .jsg-ptable__row {
+  grid-template-columns: 1.1em minmax(6.5em, 1.3fr) 0.8fr 1.1fr 0.9fr;
+}
+
+.jsg-ptable--gpu .jsg-ptable__head,
+.jsg-ptable--gpu .jsg-ptable__row {
+  grid-template-columns: 1.1em minmax(4em, 0.8fr) 2fr 0.8fr 0.9fr;
+}
+
+.jsg-ptable__head {
+  border-bottom: 1px solid var(--jsg-rule);
+  font-size: 0.9em;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--jsg-muted);
+}
+
+.jsg-ptable__head > :last-child,
+.jsg-ptable__row > :last-child {
+  text-align: right;
+}
+
+.jsg-ptable__row {
+  position: relative;
+  border-bottom: 1px solid var(--jsg-rule);
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+.jsg-ptable__row:hover {
+  background-color: var(--md-default-fg-color--lightest, rgba(0, 0, 0, 0.07));
+}
+
+.jsg-ptable__row:has(input:checked) {
+  background-color: var(--jsg-accent-tint);
+  box-shadow: inset 3px 0 0 var(--jsg-accent);
+}
+
+.jsg-ptable__row:has(input:focus-visible) {
+  outline: 2px solid var(--jsg-accent);
+  outline-offset: -2px;
+}
+
+.jsg-ptable__row input {
+  margin: 0;
+}
+
+.jsg-ptable__row input:focus-visible {
+  outline: none;
+}
+
+.jsg-ptable__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.45em;
+  min-width: 0;
+}
+
+.jsg-tag {
+  font-size: 0.85em;
+  color: var(--jsg-muted);
+}
+
+.jsg-mono {
+  font-family: var(--md-code-font-family, "Roboto Mono", monospace);
+  font-weight: 700;
+  color: var(--jsg-ink);
+}
+
+.jsg-rate {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.jsg-rate--free {
+  color: var(--jsg-accent);
+}
+
+.jsg-rate--na {
+  font-weight: 400;
+  color: var(--jsg-muted);
+}
+
+/* ---- QoS segmented control */
+
+.jsg-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+}
+
+.jsg-segmented__opt {
+  position: relative;
+  flex: 1 1 6.5em;
+  cursor: pointer;
+}
+
+.jsg-segmented__opt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.jsg-segmented__opt span {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.45em 0.7em;
+  border: 1px solid var(--jsg-input-border);
+  border-radius: var(--jsg-radius);
+  font-size: 0.82em;
+  font-weight: 700;
+  line-height: 1.35;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.jsg-segmented__opt small {
+  font-family: var(--md-code-font-family, "Roboto Mono", monospace);
+  font-size: 0.85em;
+  font-weight: 400;
+  color: var(--jsg-muted);
+}
+
+.jsg-segmented__opt:hover span {
+  border-color: var(--jsg-accent);
+}
+
+.jsg-segmented__opt input:checked + span {
+  border-color: var(--jsg-accent);
+  background-color: var(--jsg-accent-tint);
+  box-shadow: inset 0 0 0 1px var(--jsg-accent);
+  color: var(--jsg-ink);
+}
+
+.jsg-segmented__opt input:focus-visible + span {
+  outline: 2px solid var(--jsg-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Time */
+
+.jsg-time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6em 1em;
+}
+
+.jsg-field--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45em;
+  margin: 0;
+}
+
+.jsg-field--inline input[type="number"] {
+  width: 5em;
+}
+
+.jsg-field--inline > label {
+  font-weight: 400;
+  color: var(--jsg-muted);
+}
+
+.jsg-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+}
+
+.jsg-presets button {
+  padding: 0.25em 0.6em;
+  border: 1px solid var(--jsg-rule);
+  border-radius: 1em;
+  background: none;
+  color: var(--jsg-muted);
+  font: inherit;
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.jsg-presets button:hover,
+.jsg-presets button:focus-visible {
+  border-color: var(--jsg-accent);
+  color: var(--jsg-accent);
+  outline: none;
+}
+
+/* ---- Output: SU estimate */
+
+.jsg-su {
+  padding: 1em 1.2em 1.1em;
+  border-radius: var(--jsg-radius);
+  background-color: var(--jsg-ink);
+  color: #fff;
+}
+
+.jsg-su__label {
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--md-primary-fg-color--light, #B1B3B3);
+}
+
+.jsg-su__value {
+  margin: 0.1em 0 0.2em;
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.jsg-su__formula {
+  font-size: 0.78em;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--md-primary-fg-color--light, #B1B3B3);
+}
+
+.jsg-su__cost {
+  margin-top: 0.75em;
+  padding-top: 0.7em;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.82em;
+  line-height: 1.5;
+}
+
+/* ---- Output: notes */
+
+.md-typeset ul.jsg-notes {
+  margin: 0.8em 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.md-typeset .jsg-notes:empty {
+  display: none;
+}
+
+.md-typeset .jsg-note {
+  margin: 0 0 0.4em;
+  padding: 0.45em 0.7em;
+  border-left: 0.2rem solid;
+  border-radius: var(--jsg-radius);
+  font-size: 0.78em;
+  line-height: 1.5;
+}
+
+/* Colours follow Material's admonition palette. */
+.md-typeset .jsg-note--info {
+  border-color: #00b8d4;
+  background-color: rgba(0, 184, 212, 0.1);
+}
+
+.md-typeset .jsg-note--warn {
+  border-color: #ff9100;
+  background-color: rgba(255, 145, 0, 0.1);
+}
+
+.md-typeset .jsg-note--error {
+  border-color: #ff1744;
+  background-color: rgba(255, 23, 68, 0.1);
+}
+
+/* ---- Output: tabs and code */
+
+.jsg-tabs {
+  display: flex;
+  gap: 1.2em;
+  margin-top: 1.2em;
+  border-bottom: 1px solid var(--jsg-rule);
+}
+
+.jsg-tabs [role="tab"] {
+  margin-bottom: -1px;
+  padding: 0.5em 0 0.45em;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--jsg-muted);
+  font: inherit;
+  font-size: 0.82em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.jsg-tabs [role="tab"]:hover {
+  color: var(--md-default-fg-color);
+}
+
+.jsg-tabs [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--jsg-accent);
+  color: var(--jsg-accent);
+}
+
+.jsg-tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--jsg-accent);
+  outline-offset: 2px;
+}
+
+.jsg-panel {
+  padding-top: 0.7em;
+}
+
+.md-typeset .jsg-panel > .jsg-hint:first-child {
+  margin: 0 0 0.6em;
+}
+
+.jsg-filebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  font-size: 0.82em;
+}
+
+.md-typeset .jsg-panel .highlight {
+  margin-top: 0.4em;
+}
+
+.md-typeset .jsg-panel pre {
+  margin: 0;
+}
+
+.md-typeset .jsg-panel pre > code {
+  padding-right: 2.6em;
+}
+
+.jsg-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--jsg-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jsg-link:hover,
+.jsg-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.jsg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8em 1.4em;
+  margin-top: 1.2em;
+  font-size: 0.82em;
+}
+
+.md-typeset .jsg-actions .md-button {
+  padding: 0.45em 1.1em;
+  background: none;
+  font-size: 1em;
+}
+
+.md-typeset .jsg-actions .md-button:hover,
+.md-typeset .jsg-actions .md-button:focus-visible {
+  border-color: var(--jsg-accent);
+  background-color: var(--jsg-accent);
+  color: #fff;
+}
