@@ -1,7 +1,7 @@
 <!doctype html>
-<!-- 
-Copyright (c) 2023, The Regents of the University of California, 
-through Lawrence Berkeley National Laboratory (subject to receipt of any 
+<!--
+Copyright (c) 2023, The Regents of the University of California,
+through Lawrence Berkeley National Laboratory (subject to receipt of any
 required approvals from the U.S. Dept. of Energy).  All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,15 +22,91 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
-<html>
-    <head>
-        <title>LRC Service Cost Calculator</title>
-        <meta name="description" content="Laboratory Research Computing Services Cost Calculator" />
-        <link href="../dist/output.css" rel="stylesheet" />
-        <script src="lrc-calculator.js" type="text/javascript"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <iframe src="./src/lrc-calculator.html" style="position: fixed; background: #000; border: none; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%;"></iframe>        </iframe>
-    </body>
+<!--
+The text below follows hpc/jobscript-generator.md in scienceit-docs. Keep the
+two in step; the generator itself (javascripts/, stylesheets/) is shared.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jobscript Generator</title>
+  <meta name="description" content="Build a Slurm batch script for the Lawrencium CPU and Einsteinium GPU clusters at Berkeley Lab and estimate the Service Units it will use.">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Roboto+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="stylesheets/standalone.css">
+  <link rel="stylesheet" href="stylesheets/jobscript-generator.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="page-header__inner">
+      <a class="page-header__logo" href="https://scienceit-docs.lbl.gov/" aria-label="ScienceIT Technical Documentation">
+        <img src="assets/scienceitlogo.png" alt="ScienceIT" width="85" height="54">
+      </a>
+      <div class="page-header__title"><a href="https://scienceit-docs.lbl.gov/hpc/">Lawrencium Documentation</a></div>
+      <a class="page-header__link" href="https://scienceit-docs.lbl.gov/hpc/running/script-examples/">Example scripts</a>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <article class="md-typeset">
+      <h1>Jobscript Generator</h1>
+
+      <p>Build a Slurm batch script for the Lawrencium CPU and Einsteinium GPU clusters, and see roughly how many Service Units (SUs) the job will use. Choose a partition, set the resources and time limit, then copy or download the script and submit it with <code>sbatch</code>. Your choices are saved in this browser. To share a setup with someone, use <strong>Copy link to this setup</strong>.</p>
+
+      <div id="jsg" class="jsg" data-docs-base="https://scienceit-docs.lbl.gov/hpc/">
+        <noscript>
+          <p>The jobscript generator needs JavaScript. See <a href="https://scienceit-docs.lbl.gov/hpc/running/script-examples/">Example Scripts</a> for job scripts you can copy.</p>
+        </noscript>
+      </div>
+
+      <h2 id="how-the-estimate-works">How the Estimate Works</h2>
+
+      <p>The estimate follows the <a href="https://scienceit-docs.lbl.gov/hpc/#recharge-model">Recharge Model</a>:</p>
+
+      <p><strong>SUs = SU ratio of the partition × CPU cores allocated per node × number of nodes × hours</strong></p>
+
+      <ul>
+        <li><strong>Shared partitions</strong> (<code>lr7</code>, <code>lr8</code>, <code>cm1</code> and the GPU partitions) charge for the cores the job requests: tasks per node × CPUs per task. On GPU partitions, the number of cores is set by the number of GPUs, since each GPU must be requested with a fixed number of CPU cores. For example, <code>es2</code> needs 14 cores per GPU, which at an SU ratio of 2.0 comes to 28 SUs per GPU-hour.</li>
+        <li><strong>Exclusive partitions</strong> (<code>lr4</code>, <code>lr5</code>, <code>lr6</code> and <code>lr_bigmem</code>) allocate whole nodes, so every core on the node is charged even if the job uses fewer. When a partition has nodes with different numbers of cores, the estimate is shown as a range.</li>
+        <li>The estimate uses the <strong>time limit</strong> you request. Charges are based on how long the job actually runs, so a job that finishes early uses fewer SUs than estimated.</li>
+      </ul>
+
+      <p>What the SUs cost depends on the project account the job runs under:</p>
+
+      <table>
+        <thead>
+          <tr><th>Account</th><th>Project type</th><th>Compute charge</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>pc_*</code></td><td>PI Computing Allowance (PCA)</td><td>None, up to the 500,000 SU annual allowance</td></tr>
+          <tr><td><code>lr_*</code></td><td>Condo</td><td>None, when running within the condo contribution</td></tr>
+          <tr><td><code>ac_*</code></td><td>Recharge</td><td>$0.01 per SU, billed as LRCCPU</td></tr>
+        </tbody>
+      </table>
+
+      <p>Every user account is also charged a $25/month account fee, whether or not jobs are run. See <a href="https://scienceit-docs.lbl.gov/hpc/accounts/charges/">Charges and Billing</a>.</p>
+
+      <div class="admonition note">
+        <p class="admonition-title">Check your accounts and QoS</p>
+        <p>The generator fills in the standard QoS for each partition. The accounts, partitions and QoS you can use depend on your projects. To list them, run:</p>
+        <div class="language-bash highlight"><pre><code>sacctmgr show association -p user=<span class="nv">$USER</span></code></pre></div>
+        <p>See <a href="https://scienceit-docs.lbl.gov/hpc/running/slurm-overview/#slurm-association">Slurm Association</a> for how to read the output.</p>
+      </div>
+
+      <p>The generator covers the main Lawrencium and Einsteinium partitions. For other partitions, such as <code>cm2</code> and <code>cf1</code>, and for the supported research clusters, see <a href="https://scienceit-docs.lbl.gov/hpc/running/script-examples/">Example Scripts</a> and the <a href="https://scienceit-docs.lbl.gov/hpc/systems/lawrencium/">Computing Systems</a> pages.</p>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    <div class="page-footer__inner">
+      <span>ScienceIT, Lawrence Berkeley National Laboratory</span>
+      <span><a href="https://scienceit-docs.lbl.gov/">ScienceIT Technical Documentation</a> · <a href="https://github.com/lbnl-science-it/lrc-jobscript">Source</a></span>
+    </div>
+  </footer>
+
+  <script src="javascripts/jobscript-generator.js"></script>
+</body>
 </html>
