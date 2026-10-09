@@ -69,7 +69,7 @@ two in step; the generator itself (javascripts/, stylesheets/) is shared.
       <p><strong>SUs = SU ratio of the partition × CPU cores allocated per node × number of nodes × hours</strong></p>
 
       <ul>
-        <li><strong>Shared partitions</strong> (<code>lr7</code>, <code>lr8</code>, <code>cm1</code> and the GPU partitions) charge for the cores the job requests: tasks per node × CPUs per task. On GPU partitions, the number of cores is set by the number of GPUs, since each GPU must be requested with a fixed number of CPU cores. For example, <code>es2</code> needs 14 cores per GPU, which at an SU ratio of 2.0 comes to 28 SUs per GPU-hour.</li>
+        <li><strong>Shared partitions</strong> (<code>lr7</code>, <code>lr8</code>, <code>cm1</code> and the GPU partitions) charge for the cores the job requests: tasks per node × CPUs per task. On GPU partitions, the number of cores is set by the number of GPUs, since each GPU must be requested with a fixed number of CPU cores. For example, <code>es2</code> needs 14 cores per GPU, which at an SU ratio of 4.0 comes to 56 SUs per GPU-hour.</li>
         <li><strong>Exclusive partitions</strong> (<code>lr4</code>, <code>lr5</code>, <code>lr6</code> and <code>lr_bigmem</code>) allocate whole nodes, so every core on the node is charged even if the job uses fewer. When a partition has nodes with different numbers of cores, the estimate is shown as a range.</li>
         <li>The estimate uses the <strong>time limit</strong> you request. Charges are based on how long the job actually runs, so a job that finishes early uses fewer SUs than estimated.</li>
       </ul>

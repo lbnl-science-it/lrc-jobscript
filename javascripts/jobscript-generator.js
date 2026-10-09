@@ -60,15 +60,14 @@
       types: [{ cores: 48, mem: 256 }],
       qos: { normal: "cm1_normal", debug: "cm1_debug" },
     },
-    // es3 is left out until its SU ratio and QoS are set. To list it, restore:
-    // {
-    //   id: "es3", kind: "gpu", ratio: null, cpu: "AMD EPYC 9754",
-    //   gpus: [{ gres: "RTX6000", name: "RTX PRO 6000 Blackwell", mem: 96, perNode: 4, cpusPerGpu: 32, nodes: 8 }],
-    //   qos: {},
-    //   note: "QoS values for es3 have not been configured for all users yet. Enter the QoS you were given, and see the GPU cluster page for updates.",
-    // },
     {
-      id: "es2", kind: "gpu", ratio: 2.0, cpu: "Intel Xeon Platinum 8480+ or 8570",
+      id: "es3", kind: "gpu", ratio: null, cpu: "AMD EPYC 9754",
+      gpus: [{ gres: "RTX6000", name: "RTX PRO 6000 Blackwell", mem: 96, perNode: 4, cpusPerGpu: 32, nodes: 8 }],
+      qos: {},
+      note: "QoS values for es3 have not been configured for all users yet. Enter the QoS you were given, and see the GPU cluster page for updates.",
+    },
+    {
+      id: "es2", kind: "gpu", ratio: 4.0, cpu: "Intel Xeon Platinum 8480+ or 8570",
       gpus: [
         { gres: "H100", name: "H100", mem: 80, perNode: 8, cpusPerGpu: 14, nodes: 4 },
         { gres: "H200", name: "H200", mem: 141, perNode: 8, cpusPerGpu: 14, nodes: 3, memPerCpu: "18400M" },
@@ -652,9 +651,9 @@
   }
 
   function defaultCommands(job) {
-    if (job.p.kind === "gpu") return "module load ml/pytorch\npython train.py";
-    if (job.nodes * job.tasks > 1) return "module load gcc openmpi\nmpirun ./my_program";
-    return "./my_program";
+    if (job.p.kind === "gpu") return 'echo "Hello from $(hostname)"\nnvidia-smi';
+    if (job.nodes * job.tasks > 1) return "module load gcc openmpi\nmpirun hostname";
+    return 'echo "Hello from $(hostname)"';
   }
 
   // Light-weight bash highlighting using the Pygments classes the theme already styles.
