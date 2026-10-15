@@ -63,7 +63,7 @@
     {
       id: "es3", kind: "gpu", ratio: 1.0, cpu: "AMD EPYC 9754",
       gpus: [{ gres: "RTX6000", name: "RTX PRO 6000 Blackwell", mem: 96, perNode: 4, cpusPerGpu: 32, nodes: 8 }],
-      qos: { normal: "es3_normal", debug: "es_debug", lowprio: "es_lowprio" },
+      qos: { normal: "es3_normal", debug: "es_debug", lowprio: "es3_lowprio" },
     },
     {
       id: "es2", kind: "gpu", ratio: 4.0, cpu: "Intel Xeon Platinum 8480+ or 8570",
